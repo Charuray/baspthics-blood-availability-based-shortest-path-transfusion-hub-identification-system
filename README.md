@@ -68,5 +68,5 @@ Ensure Oracle services are running
 Run the application
 python run_all.py
 
-6️⃣ Open Browser
+Open Browser
 http://localhost:5000

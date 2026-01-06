@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Blood</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; color: #333; }
+        header { background: #a00; color: white; text-align: center; padding: 10px; }
+        main { width: 80%; max-width: 600px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        label { font-weight: bold; display: block; margin-top: 10px; }
+        select, input, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background: #a00; color: white; font-weight: bold; cursor: pointer; border: none; margin-top: 15px; }
+        button:hover { background: #900; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Request Blood</h1>
+    <a href="{{ url_for('dashboard') }}" style="color: white; text-decoration: none;">⬅ Back to Dashboard</a>
+</header>
+
+<main>
+    <form method="POST" action="{{ url_for('request_blood') }}">
+        <label for="hospital_name">Hospital Name:</label>
+        <input type="text" name="hospital_name" required placeholder="Enter hospital name">
+
+        <label for="blood_type">Blood Type:</label>
+        <select name="blood_type" required>
+            <option value="">Select Blood Type</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+        </select>
+
+        <label for="quantity">Quantity (Units):</label>
+        <input type="number" name="quantity" min="1" required placeholder="Enter quantity">
+
+        <label for="urgency">Urgency Level:</label>
+        <select name="urgency" required>
+            <option value="Normal">Normal</option>
+            <option value="Urgent">Urgent</option>
+            <option value="Critical">Critical</option>
+        </select>
+
+        <label for="location">Patient Location:</label>
+        <input type="text" id="location" name="location" placeholder="Fetching location..." readonly>
+        <button type="button" onclick="getGeolocation()">📍 Use My Location</button>
+
+        <label for="manual_location">Or Enter Address Manually:</label>
+        <input type="text" id="manual_location" placeholder="Enter address" onblur="convertAddressToCoords()">
+        
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
+
+        <button type="submit">Submit Request</button>
+    </form>
+</main>
+
+<script>
+    async function getGeolocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    document.getElementById('latitude').value = position.coords.latitude;
+                    document.getElementById('longitude').value = position.coords.longitude;
+                    document.getElementById('location').value = `Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}`;
+                }, 
+                async function(error) {
+                    console.warn("GPS denied, trying IP location...");
+                    getLocationByIP();
+                }
+            );
+        } else {
+            console.error("Geolocation is not supported by this browser.");
+        }
+    }
+
+    async function getLocationByIP() {
+        try {
+            let response = await fetch('https://ip-api.com/json/');
+            let data = await response.json();
+            document.getElementById('latitude').value = data.lat;
+            document.getElementById('longitude').value = data.lon;
+            document.getElementById('location').value = `Lat: ${data.lat}, Lng: ${data.lon}`;
+        } catch (error) {
+            console.error("Error fetching IP location:", error);
+        }
+    }
+
+    async function convertAddressToCoords() {
+        let address = document.getElementById('manual_location').value;
+        if (!address) return;
+        
+        let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${address}`);
+        let data = await response.json();
+
+        if (data.length > 0) {
+            document.getElementById('latitude').value = data[0].lat;
+            document.getElementById('longitude').value = data[0].lon;
+            document.getElementById('location').value = address;
+        } else {
+            alert("Address not found! Try a more specific address.");
+        }
+    }
+</script>
+
+</body>
+</html>

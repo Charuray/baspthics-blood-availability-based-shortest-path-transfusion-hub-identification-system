@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Blood Bank Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8d7da; /* Light red background */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #b71c1c;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        /* Round Back Button */
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: white;
+            color: #b71c1c;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #b71c1c;
+            color: white;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            margin-top: 80px;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            width: 80%;
+            max-width: 800px;
+        }
+
+        h2 {
+            color: #b71c1c;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .form-group {
+            flex: 1 1 48%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .full-width {
+            flex: 1 1 100%;
+            text-align: center;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #b71c1c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 50%;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #8e0000;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .login-link a {
+            color: #b71c1c;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            form {
+                flex-direction: column;
+            }
+
+            .form-group {
+                flex: 1 1 100%;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        .flash {
+                padding: 10px;
+                margin: 10px 0;
+                border-radius: 5px;
+                text-align: center;
+                font-size: 1rem;
+            }
+
+            .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+            .danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+            .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="back-button" onclick="history.back()">←</button>
+        <h1>Blood Availability Based Shortest Path Transfusion Hub Identification with crossmatch</h1>
+    </header>
+
+    <main>
+        <div class="register-container">
+
+            <h2>Register</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div id="flash-message">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}   
+            <form id="register-form" action="/register" method="post">
+                <div class="form-group">
+                    <label for="role">Register as:</label>
+                    <select id="role" name="role" required>
+                        <option value="">Select Role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Blood Bank Manager">Blood Bank Manager</option>
+                        <option value="Compatibilty Specialist">Compatibility Specialist</option>
+                        <option value="Donor">Donor</option>
+                        <option value="Data Entry Operator">Data Entry Operator</option>
+                        <option value="Hospital Representative">Hospital Representative</option>
+                        <option value="Patient">Patient</option>
+                    </select>
+                </div>
+
+                <div class="form-group hidden" id="blood-group-container">
+                    <label for="blood-group">Blood Group:</label>
+                    <select id="blood-group" name="blood_group">
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Full Name:</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number:</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required minlength="10" maxlength="13">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password between 8 and 20 characters" required minlength="8" maxlength="20">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password:</label>
+                    <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm password" required minlength="8" maxlength="20">
+                </div>
+
+                <div class="full-width">
+                    <button type="submit">Register</button>
+                </div>
+            </form>
+
+            <div class="login-link">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Blood Bank Management System. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function toggleBloodGroup() {
+            const role = document.getElementById("role").value;
+            const bloodGroupContainer = document.getElementById("blood-group-container");
+
+            if (role === "donor") {
+                bloodGroupContainer.classList.remove("hidden");
+            } else {
+                bloodGroupContainer.classList.add("hidden");
+            }
+        }
+    </script>
+</body>
+</html>

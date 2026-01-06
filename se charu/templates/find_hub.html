@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Nearest Hub</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f9; }
+        main { width: 80%; max-width: 800px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        label, select, input, button { display: block; margin: 10px 0; padding: 10px; width: 100%; }
+        button { background: #a00; color: white; font-weight: bold; cursor: pointer; border: none; }
+        button:hover { background: #900; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #a00; color: white; }
+    </style>
+</head>
+<body>
+    <main>
+        <h2>Find Nearest Transfusion Hub</h2>
+        <form method="POST" action="/find-hub">
+            <label for="blood_type">Blood Type:</label>
+            <select name="blood_type">
+                <option value="">Select Blood Type</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+            </select>
+
+            <label for="quantity">Quantity (Units):</label>
+            <input type="number" name="quantity" min="1" placeholder="Enter quantity" required>
+
+            <label for="latitude">Latitude:</label>
+            <input type="text" name="latitude" id="latitude" placeholder="Fetching location..." required>
+
+            <label for="longitude">Longitude:</label>
+            <input type="text" name="longitude" id="longitude" placeholder="Fetching location..." required>
+
+            <button type="submit">Find Nearest Hub</button>
+        </form>
+
+        {% if results %}
+        <h3>Available Blood Stock</h3>
+        <table>
+            <tr>
+                <th>Blood Type</th>
+                <th>Quantity</th>
+                <th>Location</th>
+                <th>Transfusion Hub</th>
+            </tr>
+            {% for row in results %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        {% if nearest_hub %}
+        <h3>Nearest Transfusion Hub</h3>
+        <p><strong>Location:</strong> {{ nearest_hub[2] }}</p>
+        <p><strong>Hub Name:</strong> {{ nearest_hub[3] }}</p>
+        <p><strong>Distance:</strong> {{ "%.2f"|format(distance) }} km</p>
+        {% endif %}
+
+        {% else %}
+        <p>No blood stock available.</p>
+        {% endif %}
+    </main>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        document.getElementById("latitude").value = position.coords.latitude;
+                        document.getElementById("longitude").value = position.coords.longitude;
+                    },
+                    function () {
+                        alert("Geolocation failed. Please enter manually.");
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+        getLocation();
+    </script>
+</body>
+</html>

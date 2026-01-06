@@ -1,0 +1,263 @@
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Login - Blood Bank Management System</title>
+
+            <style>
+                /* General Reset */
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                    font-family: Arial, sans-serif;
+                }
+
+                body {
+                    background-color: #f8d7da; /* Light red background */
+                    color: #333;
+                    display: flex;
+                    flex-direction: column;
+                    min-height: 100vh;
+                }
+
+                /* Fixed Header */
+                header {
+                    background-color: #b71c1c;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    font-size: 1.3rem;
+                    position: fixed;
+                    width: 100%;
+                    top: 0;
+                    left: 0;
+                }
+
+                /* Main Content - Center Form */
+                main {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex: 1;
+                    margin-top: 80px; /* Avoid overlap with fixed header */
+                }
+
+                /* Login Card */
+                .login-container {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 25px;
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+                    width: 30%;
+                    text-align: center;
+                }
+
+                h1{
+                    font-size: 25px;
+                }
+
+                h2 {
+                    color: #b71c1c;
+                    margin-bottom: 20px;
+                }
+
+                /* Form Styling */
+                form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                label {
+                    font-weight: bold;
+                    text-align: left;
+                    display: block;
+                }
+
+                input, select {
+                    padding: 12px;
+                    border: 1px solid #ccc;
+                    border-radius: 6px;
+                    width: 100%;
+                    font-size: 14px;
+                }
+
+                
+
+                /* Buttons */
+                button {
+                    margin-top: 20px;
+                    padding: 12px;
+                    background-color: #b71c1c;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    transition: 0.3s;
+                }
+
+                button:hover {
+                    background-color: #8e0000;
+                }
+
+                /* Register Link */
+                .register-link {
+                    text-align: center;
+                    margin-top: 15px;
+                }
+
+                .register-link a {
+                    color: #b71c1c;
+                    font-weight: bold;
+                    text-decoration: none;
+                }
+
+                .register-link a:hover {
+                    text-decoration: underline;
+                }
+
+
+                /* Back Button in Header */
+                .back-button {
+                    position: absolute;
+                    left: 20px;
+                    top: 30%;
+                    transform: translateY(-50%);
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 16px;
+                    cursor: pointer;
+                }
+
+                .back-button:hover {
+                    text-decoration: underline;
+                }
+
+                .flash {
+                    padding: 10px;
+                    margin: 10px 0;
+                    border-radius: 5px;
+                    text-align: center;
+                    font-size: 1rem;
+                }
+
+                .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+                .danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+                .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+            </style>
+        </head>
+        <body>
+            <header>
+                <h1>Blood Availability Based Shortest Path Transfusion Hub Identification With Crossmatch</h1>
+            </header>
+
+            <main>
+                
+
+                <div class="login-container">
+                    <h2>Login</h2>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div id="flash-message">
+                            {% for category, message in messages %}
+                                <div class="flash {{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                        <script>
+                            // Remove flash messages after 5 seconds (5000 milliseconds)
+                            setTimeout(() => {
+                                const flash = document.getElementById("flash-message");
+                                if (flash) {
+                                    flash.style.transition = "opacity 0.5s ease";
+                                    flash.style.opacity = "0";
+                                    setTimeout(() => flash.remove(), 500); // Remove after fade-out
+                                }
+                            }, 5000);
+                        </script>
+                        
+                    {% endif %}
+                {% endwith %}
+                    <form action="/login" method="post">
+                        <p id="caps-warning" style="color: #b71c1c; display: none;">Caps Lock is ON!</p>
+                        <label for="role">Login as:</label>
+                        <select id="role" name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Blood Bank Manager">Blood Bank Manager</option>
+                            <option value="Compatibilty Specialist">Compatibility Specialist</option>
+                            <option value="Donor">Donor</option>
+                            <option value="Data Entry Operator">Data Entry Operator</option>
+                            <option value="Hospital Representative">Hospital Representative</option>
+                            <option value="Patient">Patient</option>
+                        </select>
+                        
+                        <label for="username">User ID</label>
+                        <input type="text" id="username" name="username" placeholder="Enter your User ID" required maxlength="7">
+                        
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Password must be between 8 and 20 characters" onkeyup="checkCapsLock(event)" required minlength="8" maxlength="20">
+
+
+                        <script>
+                            function checkCapsLock(event) {
+                                const warning = document.getElementById("caps-warning");
+                                
+                                const isCaps = event.getModifierState && event.getModifierState("CapsLock");
+                                
+                                if (isCaps) {
+                                    warning.style.display = "block";
+                                } else {
+                                    warning.style.display = "none";
+                                }
+                            }
+                            </script>
+                        <button type="submit">Login</button>
+
+                        <script>
+                            let usernameField = document.getElementById("username");
+                            let roleSelect = document.getElementById("role");
+                        
+                            roleSelect.addEventListener("change", function() {
+                                let selectedRole = this.value;
+                                if (selectedRole) {
+                                    let prefix = selectedRole.substring(0, 2).toUpperCase() + "-";
+                                    usernameField.value = prefix;  // Set the prefix when role changes
+                                    usernameField.setAttribute("data-prefix", prefix);  // Store prefix for later use
+                                } else {
+                                    usernameField.value = "";
+                                    usernameField.removeAttribute("data-prefix");
+                                }
+                            });
+                        
+                            usernameField.addEventListener("input", function(event) {
+                                let prefix = this.getAttribute("data-prefix");
+                                if (prefix && !this.value.startsWith(prefix)) {
+                                    this.value = prefix;  // Prevent deletion of prefix
+                                }
+                            });
+                        
+                            usernameField.addEventListener("keydown", function(event) {
+                                let prefix = this.getAttribute("data-prefix");
+                                if (prefix && this.selectionStart < prefix.length && (event.key === "Backspace" || event.key === "Delete")) {
+                                    event.preventDefault();  // Prevent deleting the prefix
+                                }
+                            });
+
+                            
+                        </script>
+                    </form>
+
+                    <div class="register-link">
+                        <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+                        <p>Want to change your password? <a href="{{ url_for('change_password') }}">Change password</a></p>
+                        <p>Forgot password? <a href="{{ url_for('forgot_password') }}">Change password</a></p>
+                    </div>
+                </div>
+            </main>
+        </body>
+        </html>

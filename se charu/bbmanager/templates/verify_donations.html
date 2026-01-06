@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            background: #a00;
+            color: white;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 20px;
+            width: 100%;
+            position:relative;
+        }
+        nav {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            background: white;
+            color: #a00;
+            border-radius: 5px;
+        }
+        .container {
+            width: 90%;
+            max-width: 100%;
+            margin-top: 50px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #b71c1c;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        select, button {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #b71c1c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #8e0000;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #b71c1c;
+            color: white;
+        }
+        p {
+            font-size: 16px;
+            color: #333;
+        }
+        .low-units {
+            background-color: #ffe6e6; 
+            color: #a10000;             
+            font-weight: bold;
+        }
+        .password,.role,.user_id {
+            color: black;            /* Grayed-out text */
+            background-color: darkgray;  /* Light background */
+            cursor: not-allowed;    /* Show "not-allowed" cursor */
+            pointer-events: none;   /* Prevent interactions (if needed) */
+            user-select: none;      /* Prevent text selection */
+            opacity: 0.6;           /* Slightly faded look */
+        }
+
+
+    </style>
+    <script>
+        function approveRequest(button, requestId,bbId,units, userId) {
+            if (!confirm("Are you sure you want to approve this domation details?")) {
+                return;
+            }
+
+            let requestData = {
+                user_id: userId,
+                request_id: requestId,
+                bloodbank_id: bbId,
+                units: units,
+                status: "Approved"
+            };
+
+            fetch("/update_donation_status", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Request Approved Successfully!");
+                    button.disabled = true;
+                    button.innerText = "Approved";
+                    disableButtons(requestId, "Approved");
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function rejectRequest(button, requestId, userId) {
+            if (!confirm("Are you sure you want to reject this donation details?")) {
+                return;
+            }
+
+            let requestData = {
+                user_id: userId,
+                request_id: requestId,
+                status: "Rejected"
+            };
+
+            fetch("/update_donaation_status", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Request Rejected Successfully!");
+                    button.disabled = true;
+                    button.innerText = "Rejected";
+                    disableButtons(requestId, "Rejected");
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function disableButtons(requestId, statusText) {
+            let approveBtn = document.querySelector(`button[onclick*="approveRequest(this, '${requestId}'"]`);
+            let rejectBtn = document.querySelector(`button[onclick*="rejectRequest(this, '${requestId}'"]`);
+
+            if (approveBtn) {
+                approveBtn.disabled = true;
+                approveBtn.innerText = statusText;
+            }
+            if (rejectBtn) {
+                rejectBtn.disabled = true;
+                rejectBtn.innerText = statusText;
+            }
+        }
+            
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Manage Users</h1>
+        <nav>
+            <a href="ttp://127.0.0.1:5000/dashboard">Dashboard</a> |
+            <a href="http://127.0.0.1:5000/login">Logout</a>
+        </nav>
+    </header>
+    <div class="container">
+
+        <form id="blood" name="blood" method="POST" action="{{ url_for('manage_users') }}">
+            <input type="hidden" id="user_id" name="user_id" value="{{ session.get('user_id', '') }}">
+
+            <label for="Role_User">Select Role to View: </label>
+            <select id="Role_User" name="Role_User">
+                <option value="" selected>Select role</option>
+                <option value="Blood Bank Manager">Blood Bank Manager</option>
+                <option value="Compatibility Specialist">Compatibility Specialist</option>
+                <option value="Data Entry Operator">Data Entry Operator</option>
+                <option value="Donor">Donor</option>
+                <option value="Hospital Representative">Hospital Representative</option>
+                <option value="Patient">Patient</option>
+            </select>
+            <button type="submit">Load Users</button>
+        </form>
+    </div>
+
+    <div class="container card">
+        <h2>Users - Double Click to Update</h2>
+        {% if results %}
+        <table>
+            <tr>
+                <th>USER ID</th>
+                <th>ROLE</th>
+                <th>NAME</th>
+                <th>PHONE</th>
+                <th>EMAIL</th>
+                <th>PASSWORD</th>
+                <th>Delete User</th>
+            </tr>
+            {% for row in results %}
+            <tr data-user-id="{{ row[0] }}">
+                <td ondblclick="makeEditable(this)" data-field="user_id" class="user_id">{{ row[0] }}</td>
+                <td ondblclick="makeEditable(this)" data-field="role" class="role">{{ row[1] }}</td>
+                <td ondblclick="makeEditable(this)" data-field="name">{{ row[2] }}</td>
+                <td ondblclick="makeEditable(this)" data-field="phone">{{ row[3] }}</td>
+                <td ondblclick="makeEditable(this)" data-field="email">{{ row[4] }}</td>
+                <td ondblclick="makeEditable(this)" data-field="password" class="password">{{ row[5] }}</td>
+                <td>
+                    <button class="request-btn" 
+                                onclick="approveRequest(this, '{{ row[0] }}','{{ row[1]}}', '{{ row[3] }}', document.getElementById('user_id').value)">
+                            Approve
+                    </button>
+                </td>
+                <td>
+                    <button class="request-btn" 
+                        onclick="rejectRequest(this, '{{ row[0] }}', document.getElementById('user_id').value)">
+                        Reject
+                    </button> 
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No users found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

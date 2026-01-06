@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Requests</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background: #a00;
+            color: white;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 20px;
+        }
+
+        nav {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            background: white;
+            color: #a00;
+            border-radius: 5px;
+        }
+        form {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+        .form-group {
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
+        }
+        
+
+        main {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #a00;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f2f2f2;
+        }
+
+        /* Request Button */
+        .request-btn {
+            background: #28a745;
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .request-btn:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            main {
+                width: 95%;
+            }
+
+            nav a {
+                display: block;
+                text-align: center;
+                padding: 8px;
+            }
+
+            table, th, td {
+                font-size: 14px;
+            }
+        }
+    </style>
+
+    <script>
+        function requestBlood(button, bloodType,status) {
+    // Prepare request data
+    let requestData = {
+        user_id: user_id,
+        bloodType: bloodType,
+        status:status
+    };
+
+    // Send data to the backend using fetch API
+    fetch("/track_requests", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Blood Request Submitted Successfully!\n\n" + 
+                  "Blood Type: " + bloodType + "\n" + 
+                  "Location: " + location + "\n" + 
+                  "Quantity: " + quantity);
+            
+            // Disable the button after clicking
+            button.disabled = true;
+            button.innerText = "Requested";
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Track Requests</h1>
+        <nav>
+            <a href="http://127.0.0.1:5000/dashboard">Dashboard</a> |
+            <a href="http://127.0.0.1:5000/login">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="card">
+            
+            <h2>Search Blood Stock</h2>
+            {% set user_id = session['user_id'] %}
+            <p>User ID: {{user_id}}</p>
+            <form method="POST" action="{{ url_for('track_request') }}">
+                <!-- Hidden input to send user_id -->
+                <input type="hidden" name="user_id" value="{{ session.get('user_id', '') }}">
+            
+                <div>
+                    <label for="blood_type">Blood Type:</label>
+                    <select name="blood_type">
+                        <option value="">All Blood Types</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+            
+                <div>
+                    <label for="status">Status:</label>
+                    <select name="status">
+                        <option value="">All Status</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+            
+                <button type="submit">Search</button>
+            </form>
+            
+        </div>
+
+        <!-- Results Card -->
+        <div class="card">
+            <h2>Requests Made</h2>
+            {% if results %}
+            <table>
+                <tr>
+                    <th>REQEUST ID</th>
+                    <th>BB ID</th>
+                    <th>BLOOD GROUP REQUESTED</th>
+                    <th>UNITS REQUIRED</th>
+                    <th>REQUEST DATE</th>
+                    <th>LOCATION</th>
+                    <th>REQEUST STATUS</th>
+                </tr>
+                {% for row in results %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td>{{ row[5] }}</td>
+                    <td>{{ row[6] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <p>No requests made.</p>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

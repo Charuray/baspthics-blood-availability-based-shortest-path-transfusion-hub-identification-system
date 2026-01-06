@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antibody Screening Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        
+        header {
+            background: #a00;
+            color: white;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 20px;
+        }
+
+        nav {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            background: white;
+            color: #a00;
+            border-radius: 5px;
+        }
+        form {
+                flex-direction: column;
+                gap: 10px;
+                padding: 25px;
+            }
+
+        .form-group {
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
+        }
+        
+
+        main {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #a00;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f2f2f2;
+        }
+
+        /* Request Button */
+        .request-btn {
+            background: #28a745;
+            color: white;
+            font-weight: bold;
+            border: none;
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .request-btn:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.6rem;
+            margin-top: 0.4rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .unit {
+            display: inline-block;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+        .radio-group, .checkbox-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .submit-btn {
+            margin-top: 2rem;
+            padding: 0.8rem 1.5rem;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            main {
+                width: 95%;
+            }
+
+            nav a {
+                display: block;
+                text-align: center;
+                padding: 8px;
+            }
+
+            table, th, td {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Antibody Screening Form</h1>
+        <nav>
+            <a href=http://127.0.0.1:5000/dashboard>Dashboard</a> |
+            <a href=http://127.0.0.1:5000/login>Logout</a>
+        </nav>
+    </header>
+    <main>
+        <form action="/submit_screening" method="POST" id="screeningForm">
+            
+            <!-- Patient Information Section -->
+            <div class="input-section">
+                <label for="pid">Patient ID (PID)</label>
+                <input type="text" id="pid" name="pid" required maxlength="7">
+
+                <script>
+                    const pidInput = document.getElementById("pid");
+                    const prefix = "PA-";
+                
+                    // Set initial value
+                    pidInput.value = prefix;
+                
+                    // Prevent deleting the prefix
+                    pidInput.addEventListener("input", function () {
+                        if (!pidInput.value.startsWith(prefix)) {
+                            pidInput.value = prefix + pidInput.value.replace(/[^0-9a-zA-Z]/g, "").replace(prefix, "");
+                        }
+                    });
+                
+                    // Prevent moving cursor before prefix
+                    pidInput.addEventListener("keydown", function (e) {
+                        const cursorPosition = pidInput.selectionStart;
+                
+                        // Prevent backspace/delete within prefix
+                        if ((e.key === "Backspace" || e.key === "Delete") && cursorPosition <= prefix.length) {
+                            e.preventDefault();
+                        }
+                
+                        // Prevent arrow keys moving cursor before prefix
+                        if ((e.key === "ArrowLeft" || e.key === "Home") && cursorPosition <= prefix.length) {
+                            e.preventDefault();
+                        }
+                    });
+                
+                    // Keep cursor after prefix on focus
+                    pidInput.addEventListener("focus", function () {
+                        if (pidInput.selectionStart < prefix.length) {
+                            setTimeout(() => {
+                                pidInput.setSelectionRange(prefix.length, prefix.length);
+                            }, 0);
+                        }
+                    });
+                </script>
+
+                <label for="screen_date">Screening Date</label>
+                <input type="date" id="screen_date" name="screen_date" value="<?= date('Y-m-d') ?>" required>
+
+                <label for="cell_panel">Cell Panel</label>
+                <select id="cell_panel" name="cell_panel" required>
+                    <option value="Cell 1">Cell 1</option>
+                    <option value="Cell 2">Cell 2</option>
+                    <option value="Cell 3">Cell 3</option>
+                </select>
+            </div>
+            
+            <!-- Antigen Profile Section -->
+            <div class="input-section">
+                <label for="antigen_profile">Antigen Profile</label>
+                <input type="text" id="antigen_profile" name="antigen_profile" placeholder="e.g., D+, C+, E-, c+, e+, K-" required>
+            </div>
+            
+            <!-- Reactions Section -->
+            <div class="input-section">
+                <label for="reaction_is">Reaction at IS (Immediate Spin)</label>
+                <select id="reaction_is" name="reaction_is" required>
+                    <option value="0">0 (Negative)</option>
+                    <option value="1">1+ (Weak Positive)</option>
+                    <option value="2">2+ (Positive)</option>
+                    <option value="3">3+ (Strong Positive)</option>
+                </select>
+
+                <label for="reaction_37c">Reaction at 37°C</label>
+                <select id="reaction_37c" name="reaction_37c" required>
+                    <option value="0">0 (Negative)</option>
+                    <option value="1">1+ (Weak Positive)</option>
+                    <option value="2">2+ (Positive)</option>
+                    <option value="3">3+ (Strong Positive)</option>
+                </select>
+
+                <label for="reaction_ahg">Reaction at AHG (Anti-Human Globulin)</label>
+                <select id="reaction_ahg" name="reaction_ahg" required>
+                    <option value="0">0 (Negative)</option>
+                    <option value="1">1+ (Weak Positive)</option>
+                    <option value="2">2+ (Positive)</option>
+                    <option value="3">3+ (Strong Positive)</option>
+                </select>
+            </div>
+
+            <!-- Result Section -->
+            <div class="input-section">
+                <label for="screening_result">Screening Result</label>
+                <select id="screening_result" name="screening_result" required>
+                    <option value="Positive">Positive</option>
+                    <option value="Negative">Negative</option>
+                </select>
+            
+                <script>
+                    const reactionIS = document.getElementById("reaction_is");
+                    const reaction37C = document.getElementById("reaction_37c");
+                    const reactionAHG = document.getElementById("reaction_ahg");
+                    const screeningResult = document.getElementById("screening_result");
+                
+                    function updateScreeningResult() {
+                        const isPositive = [reactionIS, reaction37C, reactionAHG].some(select => parseInt(select.value) > 0);
+                        screeningResult.value = isPositive ? "Positive" : "Negative";
+                    }
+                
+                    // Attach listeners to the three dropdowns
+                    reactionIS.addEventListener("change", updateScreeningResult);
+                    reaction37C.addEventListener("change", updateScreeningResult);
+                    reactionAHG.addEventListener("change", updateScreeningResult);
+                
+                    // Trigger on page load in case values are prefilled
+                    window.addEventListener("load", updateScreeningResult);
+                </script>
+                
+            </div>
+
+            <!-- Interpretation Section -->
+            <div class="input-section">
+                <label for="interpretation">Interpretation</label>
+                <textarea id="interpretation" name="interpretation" rows="4" placeholder="e.g., Possible anti-D antibody detected" required></textarea>
+            </div>
+
+            <!-- Submit Button -->
+             <br><br>
+            <center><button type="submit" class="request-btn">Submit Screening</button></center>
+        </form>
+    </main>
+
+    <script>
+        document.getElementById("screeningForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // prevent default form submission
+        
+            const data = {
+                pid: document.getElementById("pid").value,
+                cell_panel: document.getElementById("cell_panel").value,
+                antigen_profile: document.getElementById("antigen_profile").value,
+                reaction_is: document.getElementById("reaction_is").value,
+                reaction_37c: document.getElementById("reaction_37c").value,
+                reaction_ahg: document.getElementById("reaction_ahg").value,
+                screening_result: document.getElementById("screening_result").value,
+                interpretation: document.getElementById("interpretation").value,
+                screen_date: document.getElementById("screen_date").value
+            };
+        
+            fetch("/submit_screening", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(response => {
+                alert(response.message);
+            })
+            .catch(error => {
+                alert("Error: " + error);
+            });
+        });
+        </script>
+
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank Management System</title>
+    <style>
+        /* Google Font */
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #8B0000, #B22222); /* Dark Red to Maroon Gradient */
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+    width: 90%;
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.95); /* Light Overlay for Readability */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #8B0000; /* Dark Red */
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.card {
+    background: linear-gradient(135deg, #D32F2F, #FF6F61); /* Blood Red Gradient */
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    width: 250px;
+    height: 150px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.card h2 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+}
+
+.card p {
+    font-size: 0.9rem;
+    color: #f8f8f8;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Blood Availability Based Shortest Path Transfusion Hub <br> Identification with Crossmatch</h1>
+        <div class="card-container">
+            <a href="{{ url_for('login') }}" class="card">
+                <h2>Login</h2>
+                <p>Access your account securely.</p>
+            </a>
+            <a href="{{ url_for('register') }}" class="card">
+                <h2>Register</h2>
+                <p>Create a new account.</p>
+            </a>
+            <a href="/request-blood" class="card">
+                <h2>Request Blood</h2>
+                <p>Find and request the required blood type.</p>
+            </a>
+            <a href="/blood-availability" class="card">
+                <h2>Check Availability</h2>
+                <p>View available blood stock in real-time.</p>
+            </a>
+        </div>
+</body>
+</html>

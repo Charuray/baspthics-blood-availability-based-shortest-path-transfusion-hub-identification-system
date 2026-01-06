@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            background: #a00;
+            color: white;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 20px;
+            width: 100%;
+            position:relative;
+        }
+        nav {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            background: white;
+            color: #a00;
+            border-radius: 5px;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin-top: 50px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #b71c1c;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        select, button {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #b71c1c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #8e0000;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #b71c1c;
+            color: white;
+        }
+        p {
+            font-size: 16px;
+            color: #333;
+        }
+        .low-units {
+            background-color: #ffe6e6; 
+            color: #a10000;             
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>View previous Donations</h1>
+        <nav>
+            <a href="http://127.0.0.1:5000/dashboard">Dashboard</a> |
+            <a href="http://127.0.0.1:5000/login">Logout</a>
+        </nav>
+    </header>
+    <div class="container">
+
+        <form id="blood" name="blood" method="post" action="{{ url_for('track_donations') }}">
+
+            <label>Select donation type:</label><br>
+          
+            <input type="checkbox" name="donationtype_cb" value="Whole Blood"> Whole Blood<br>
+            <input type="checkbox" name="donationtype_cb" value="Plasma"> Plasma<br>
+            <input type="checkbox" name="donationtype_cb" value="Platelets"> Platelets<br>
+            <input type="checkbox" name="donationtype_cb" value="Double Red Cells"> Double Red Cells<br>
+          
+            <!-- Hidden input that will carry the comma-separated string -->
+            <input type="hidden" id="donationtype" name="donationtype">
+          
+            <button type="submit">Load Records</button>
+          
+          </form>
+          
+          <script>
+            document.getElementById("blood").addEventListener("submit", function (e) {
+              const checkboxes = document.querySelectorAll('input[name="donationtype_cb"]:checked');
+              const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+              document.getElementById("donationtype").value = selectedValues.join(","); // Comma-separated
+            });
+          </script>
+          
+          
+    </div>
+
+    <div class="container card">
+        <h2>Stock Available</h2>
+        {% if results %}
+        <table>
+            <tr>
+                <th>DONATION TYPE</th>
+                <th>UNITS</th>
+                <th>DONATION DATE</th>
+    
+            </tr>
+            {% for row in results %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No donations made.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

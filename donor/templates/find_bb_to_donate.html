@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Find Nearest Hub</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    header {
+      background: #a00;
+      color: white;
+      text-align: center;
+      padding: 5px 0;
+      font-size: 20px;
+    }
+
+    nav {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      background: white;
+      color: #a00;
+      border-radius: 5px;
+    }
+
+    main {
+      width: 80%;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label,
+    select,
+    input,
+    button {
+      display: block;
+      margin: 10px 0;
+      padding: 10px;
+      width: 95%;
+    }
+
+    button {
+      background: #a00;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+
+    button:hover {
+      background: #900;
+    }
+
+    .request-btn {
+      background: #28a745;
+      color: white;
+      font-weight: bold;
+      border: none;
+      padding: 8px;
+      font-size: 14px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .request-btn:disabled {
+      background: gray;
+      cursor: not-allowed;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: #a00;
+      color: white;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        width: 95%;
+      }
+
+      nav a {
+        display: block;
+        text-align: center;
+        padding: 8px;
+      }
+
+      table, th, td {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Find Nearest Blood Bank</h1>
+    <nav>
+      <a href="http://127.0.0.1:5000/dashboard">Dashboard</a> |
+      <a href="http://127.0.0.1:5000/login">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Find Nearest Blood Bank</h2>
+    <form method="POST" action="http://127.0.0.1:5006/find_bb_to_donate">
+      <label for="blood_type">Blood Type:</label>
+      <input type="text" name="blood_type" id="blood_type" value="{{ blood_type or '' }}" placeholder="" readonly> 
+
+      <label for="latitude">Latitude:</label>
+      <input type="text" name="latitude" id="latitude" value="{{ latitude or '' }}" placeholder="Fetching location..." readonly>      
+
+      <label for="longitude">Longitude:</label>
+      <input type="text" name="longitude" id="longitude" value="{{ longitude or '' }}" placeholder="Fetching location..." readonly>
+
+      <label for="address:" id="address" name="address">Address (Street Name):</label>
+      <input type="textfield" name="address" id="address"  placeholder="Enter Street Name and District"></input>
+      <button type="submit">Find Nearest Hospital</button>
+    </form>
+    {% if nearest_blood_bank %}
+    <h3>Nearest Blood Banks</h3>
+    <p><strong>Location:</strong> {{ nearest_blood_bank.location }}</p>
+    <p><strong>Blood Bank Name:</strong> {{ nearest_blood_bank.bb_name }}</p>
+    <p><strong>Distance:</strong> {{ nearest_blood_bank.distance_text }}</p>
+    <p><strong>Duration:</strong> {{ nearest_blood_bank.duration_text }}</p>
+    {% set origin_lat=nearest_blood_bank.latitude %}
+    {%set origin_lng= nearest_blood_bank.longitude %}
+    <button class="request-btn">
+        <a target="_blank" style="text-decoration: none; color:white"
+           href="https://www.google.com/maps/dir/?api=1&origin={{ latitude }},{{ longitude }}&destination={{ nearest_blood_bank.latitude }},{{ nearest_blood_bank.longitude }}&travelmode=driving">
+          View Map
+        </a>
+    </button>
+    {% endif %}
+    {% if results %}
+    <h3>Available Blood Banks</h3>
+    <table>
+      <tr>
+        <th>Blood Bank Name</th>
+        <th>Location</th>
+        <th>Contact</th>
+        <th>Blood Group</th>
+        <th>Units</th>
+        <th>Distance</th>
+        <th>View Map</th>
+    
+      </tr>
+      {% for row in results %}
+      <tr>
+        <td>{{ row.bb_name }}</td>
+        <td>{{ row.location }}</td>
+        <td>{{ row.contact }}</td>
+        <td>{{ row.b_group }}</td>
+        <td>{{ row.units }}</td>
+        <td>{{ row.distance_text }}</td>
+        <td>
+          <button class="request-btn">
+            <a target="_blank" style="text-decoration: none; color:white"
+               href="https://www.google.com/maps/dir/?api=1&origin={{ latitude }},{{ longitude }}&destination={{ row.latitude }},{{ row.longitude }}&travelmode=driving">
+              View Map
+            </a>
+          </button>
+        </td>
+       
+      </tr>
+      {% endfor %}
+    </table>
+
+    
+    {% else %}
+    <p>No blood banks available nearby.</p>
+    {% endif %}
+  </main>
+
+  <script>
+    navigator.geolocation.getCurrentPosition(
+  function (position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    const accuracy = position.coords.accuracy;
+
+    document.getElementById("latitude").value = lat;
+    document.getElementById("longitude").value = lng;
+
+    console.log("Fetched location:", lat, lng, "Accuracy (meters):", accuracy);
+  },
+  function (error) {
+    console.error("Error getting location:", error);
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        alert("User denied the request for Geolocation.");
+        break;
+      case error.POSITION_UNAVAILABLE:
+        alert("Location information is unavailable.");
+        break;
+      case error.TIMEOUT:
+        alert("The request to get user location timed out.");
+        break;
+      case error.UNKNOWN_ERROR:
+        alert("An unknown error occurred.");
+        break;
+    }
+  },
+  {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0
+  }
+);
+
+function requestBlood(button, user_id, hosp_id,hosp_name, blood_type, quantity) {
+    const userId = "{{ session.get('user_id') }}";  // Get user ID from hidden field
+    console.log("User ID:", userId);  // Debugging
+
+    if (!userId) {
+        alert("Error: User not logged in!");
+        return;
+    }
+    let requestQuantity = prompt("Enter quantity required:", "1"); // Default value set to 1
+    if (requestQuantity !== null && requestQuantity<=quantity) { // Ensures user didn't cancel the prompt
+        requestQuantity = parseInt(requestQuantity, 10); // Convert to integer
+        if (isNaN(requestQuantity) || requestQuantity <= 0) {
+            alert("Invalid quantity! Please enter a valid number.");
+        } else {
+            console.log("Requested Quantity:", requestQuantity);
+        }
+    }
+
+    let requestDate = prompt("Enter the request date (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+
+    if (!requestDate) {
+        alert("Request canceled. No date provided.");
+        return;
+    }
+
+    let requestData = {
+        user_id: userId,  // Use hidden input value
+        hosp_id: hosp_id, // Use hidden input value
+        hosp_name: hosp_name, // Use hidden input value
+        blood_type: blood_type, // Use hidden input value
+        quantity: requestQuantity, // Use hidden input value
+    };
+
+    console.log("Request Data:", requestData);  // Debugging
+
+    fetch("/submit_request", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Response:", data);  // Debugging
+
+        if (data.success) {
+            alert("Blood Request Submitted Successfully!\n\n" + 
+                  "Blood Type: " + bloodType + "\n" + 
+                  "Location: " + location + "\n" + 
+                  "Quantity: " + requestQuantity);
+            button.disabled = true;
+            button.innerText = "Requested";
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+
+    function storeInputValue() {
+    // Get the input value
+    let inputValue = document.getElementById("userInput").value;
+
+    // Store in a variable (for use in other functions)
+    window.storedValue = inputValue; // Using window object to make it globally accessible
+
+    // Display the stored value for confirmation (optional)
+    console.log("Stored Value:", window.storedValue);
+    alert("Input stored: " + window.storedValue);
+}
+
+}
+
+  </script>
+</body>
+</html>

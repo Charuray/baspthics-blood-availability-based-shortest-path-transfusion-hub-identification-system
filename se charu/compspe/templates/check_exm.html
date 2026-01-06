@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check EXM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            background: #a00;
+            color: white;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 20px;
+            width: 100%;
+            position:relative;
+        }
+        nav {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            background: white;
+            color: #a00;
+            border-radius: 5px;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin-top: 50px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #b71c1c;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        select, button {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #b71c1c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #8e0000;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #b71c1c;
+            color: white;
+        }
+        p {
+            font-size: 16px;
+            color: #333;
+        }
+        .antibodies_present {
+            background-color: #ffe6e6; 
+            color: #a10000;             
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.6rem;
+            margin-top: 0.4rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>EXM Compatibility</h1>
+        <nav>
+            <a href="http://127.0.0.1:5000/dashboard">Dashboard</a> |
+            <a href="http://127.0.0.1:5000/login">Logout</a>
+        </nav>
+    </header>
+    <div class="container">
+
+        <form id="blood" name="blood" method="POST" action="{{ url_for('check_exm') }}">
+                <label for="pid">Patient ID (PID)</label>
+                <input type="text" id="pid" name="pid" required maxlength="7">
+
+                <script>
+                    const pidInput = document.getElementById("pid");
+                    const prefix = "PA-";
+                
+                    // Set initial value
+                    pidInput.value = prefix;
+                
+                    // Prevent deleting the prefix
+                    pidInput.addEventListener("input", function () {
+                        if (!pidInput.value.startsWith(prefix)) {
+                            pidInput.value = prefix + pidInput.value.replace(/[^0-9a-zA-Z]/g, "").replace(prefix, "");
+                        }
+                    });
+                
+                    // Prevent moving cursor before prefix
+                    pidInput.addEventListener("keydown", function (e) {
+                        const cursorPosition = pidInput.selectionStart;
+                
+                        // Prevent backspace/delete within prefix
+                        if ((e.key === "Backspace" || e.key === "Delete") && cursorPosition <= prefix.length) {
+                            e.preventDefault();
+                        }
+                
+                        // Prevent arrow keys moving cursor before prefix
+                        if ((e.key === "ArrowLeft" || e.key === "Home") && cursorPosition <= prefix.length) {
+                            e.preventDefault();
+                        }
+                    });
+                
+                    // Keep cursor after prefix on focus
+                    pidInput.addEventListener("focus", function () {
+                        if (pidInput.selectionStart < prefix.length) {
+                            setTimeout(() => {
+                                pidInput.setSelectionRange(prefix.length, prefix.length);
+                            }, 0);
+                        }
+                    });
+                </script>
+
+        <br><br>
+        <center><button type="submit" class="request-btn">Submit Pid</button></center>
+        </form>
+    </div>
+
+    <div class="container card">
+        <h2>Screening Results</h2>
+        {% if results %}
+        <table>
+            <tr>
+                <th>PATIENT ID</th>
+                <th>REACTION ON IMMEDIATE SPIN</th>
+                <th>REACTION AT 37 C</th>
+                <th>REACTION AT AHG</th>
+                <th>RESULTS</th>
+                <th>INTERPRETATION</th>
+            </tr>
+            {% for row in results %}
+            <tr class="{% if row[4] == 'Positive' %}antibodies_present{% endif %}">
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No screening results.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

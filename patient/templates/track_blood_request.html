@@ -1,0 +1,205 @@
+<html>
+    <head>
+        <title>
+            Track Current request
+        </title>
+        <style>
+           body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    header {
+      background: #a00;
+      color: white;
+      text-align: center;
+      padding: 5px 0;
+      font-size: 20px;
+    }
+
+    nav {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      background: white;
+      color: #a00;
+      border-radius: 5px;
+    }
+
+    main {
+      width: 80%;
+      max-width: 800px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label,
+    select,
+    input,
+    button {
+      display: block;
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+    }
+
+    button {
+      background: #a00;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+
+    button:hover {
+      background: #900;
+    }
+
+    .request-btn {
+      background: #28a745;
+      color: white;
+      font-weight: bold;
+      border: none;
+      padding: 8px;
+      font-size: 14px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .request-btn:disabled {
+      background: gray;
+      cursor: not-allowed;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #a00;
+      color: white;
+    }
+    .progress-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 50px auto;
+            max-width: 700px;
+            position: relative;
+            counter-reset: step;
+            margin-top: 25vh;
+        }
+
+        .step {
+            width: 100%;
+            text-align: center;
+            position: relative;
+            padding: 10px;
+            color: gray;
+            font-weight: 600;
+        }
+
+        .step::before {
+            counter-increment: step;
+            content: counter(step);
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border: 3px solid gray;
+            display: block;
+            text-align: center;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            background-color: white;
+            font-size: 18px;
+        }
+
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            height: 3px;
+            width: 100%;
+            background-color: gray;
+            z-index: -1;
+        }
+
+        .step.active {
+            color: green;
+        }
+
+        .step.active::before {
+            border-color: green;
+            background-color: #c6f7c4;
+        }
+
+        .step.active::after {
+            background-color: green;
+        }
+
+        #step4::after {
+            content:none;
+        }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Blood Request Progress</h1>
+            <nav>
+            <a href="http://127.0.0.1:5000/dashboard">Dashboard</a> |
+            <a href="http://127.0.0.1:5000/login">Logout</a>
+            </nav>
+        </header>
+
+    <div class="progress-container">
+        <div class="step" id="step1">Pending</div>
+        <div class="step" id="step2">Screening Done</div>
+        <div class="step" id="step3">Verifying Crossmatch</div>
+        <div class="step" id="step4">Approved</div>
+    </div>
+
+    <div>
+      <center><p>{{ desc }}</p></center>
+    </div>
+    <script>
+        // Sample status (this will be dynamic in Flask)
+        const status = "{{ status|default('Pending') }}";  // Flask variable example
+
+        // Map statuses to step numbers
+        const statusSteps = {
+            "Pending": 1,
+            "Screening Done": 2,
+            "Crossmatch Done": 3,
+            "Approved": 4
+        };
+
+        const currentStep = statusSteps[status];
+        for (let i = 1; i <= currentStep; i++) {
+            document.getElementById(`step${i}`).classList.add("active");
+        }
+    </script>
+    </body>
+</html>

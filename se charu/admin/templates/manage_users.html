@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            background: #a00;
+            color: white;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 20px;
+            width: 100%;
+            position:relative;
+        }
+        nav {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            background: white;
+            color: #a00;
+            border-radius: 5px;
+        }
+        .container {
+            width: 90%;
+            max-width: 100%;
+            margin-top: 50px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #b71c1c;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        select, button {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #b71c1c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn{
+            display: inline;
+            width: 50vh;
+            margin: 25px;
+        }
+        button:hover {
+            background-color: #8e0000;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #b71c1c;
+            color: white;
+        }
+        p {
+            font-size: 16px;
+            color: #333;
+        }
+        .low-units {
+            background-color: #ffe6e6; 
+            color: #a10000;             
+            font-weight: bold;
+        }
+        .password,.role,.user_id {
+            color: black;            /* Grayed-out text */
+            background-color: darkgray;  /* Light background */
+            cursor: not-allowed;    /* Show "not-allowed" cursor */
+            pointer-events: none;   /* Prevent interactions (if needed) */
+            user-select: none;      /* Prevent text selection */
+            opacity: 0.6;           /* Slightly faded look */
+        }
+
+
+    </style>
+    <script>
+        function makeEditable(cell) {
+        // If already editing, return
+            if (cell.querySelector('input')) return;
+
+            const originalValue = cell.innerText;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = originalValue;
+            input.style.width = "100%";
+
+            // Replace cell content with input
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+
+            // Press Enter to save
+            input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                const newValue = this.value;
+                cell.innerText = newValue;
+
+                const userId = cell.parentElement.getAttribute('data-user-id'); // each <tr> should have this
+                const field = cell.getAttribute('data-field'); // you can assign which field this is (e.g., name, phone)
+                console.log("Updating user:", userId, "Field:", field, "New value:", newValue);
+
+
+                // Send data to Flask
+                fetch('/update_user_field', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        field: field,
+                        value: newValue
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Update successful, refresh page to see changes.");
+                    } else {
+                        alert("Update failed: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating data:", error);
+                });
+            }
+
+            if (event.key === 'Escape') {
+                cell.innerText = originalValue;
+            }
+        });
+
+
+            // Lose focus = revert to original
+            input.addEventListener('blur', function () {
+                cell.innerText = originalValue;
+            });
+        }
+        function deleteuser(button, user_id){
+            const userId = user_id;  
+            if (!userId) {
+                alert("Error: Failed to fetch user id");
+                return;
+            }
+            let requestData = {
+                user_id: userId// Use hidden input value
+            };
+
+            console.log("Request Data:", requestData);  // Debugging
+
+            fetch("/delete_user", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response:", data);  // Debugging
+
+                if (data.success) {
+                    alert("Deletion completed successfully, refresh the page to see changes");
+                    button.disabled = true;
+                    button.innerText = "Deleted";
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+                }
+                
+        function commit() {
+            if (!confirm("Are you sure you want to commit this action?")) {
+                return; // Cancel if user says no
+            }
+
+            fetch('/commit_route', {  // change to your actual Flask route
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: 'commit' })  // send any needed data here
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("✅ Commit successful!");
+                } else {
+                    alert("❌ Commit failed: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error during commit:", error);
+                alert("❌ Commit failed due to a network or server error.");
+            });
+        }
+        function add_user() {
+            const table = document.getElementById("userTable");
+            const newRow = table.insertRow(-1); // Insert at end
+
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="Enter User ID" name="user_id"></td>
+                <td>
+                    <select name="role">
+                        <option value="">Select</option>
+                        <option value="Blood Bank Manager">Blood Bank Manager</option>
+                        <option value="Compatibility Specialist">Compatibility Specialist</option>
+                        <option value="Data Entry Operator">Data Entry Operator</option>
+                        <option value="Donor">Donor</option>
+                        <option value="Hospital Representative">Hospital Representative</option>
+                        <option value="Patient">Patient</option>
+                    </select>
+                </td>
+                <td><input type="text" name="name" placeholder="Name"></td>
+                <td><input type="text" name="phone" placeholder="Phone" maxlength=10></td>
+                <td><input type="email" name="email" placeholder="Email"></td>
+                <td><input type="password" name="password" placeholder="Password"></td>
+                <td><button onclick="save_user(this)">Save</button></td>
+            `;
+        }
+
+        function save_user(button) {
+            const row = button.closest("tr");
+            const inputs = row.querySelectorAll("input, select");
+
+            const userData = {};
+            inputs.forEach(input => {
+                userData[input.name] = input.value;
+            });
+
+            console.log("Sending user data:", userData);
+
+            fetch("/add_user", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("User added successfully. Refresh to see permanent changes.");
+                    button.disabled = true;
+                    button.innerText = "Saved";
+                    inputs.forEach(input => input.disabled = true);
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error("Error saving user:", err);
+                alert("Failed to save user.");
+            });
+        }
+
+
+
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Manage Users</h1>
+        <nav>
+            <a href="http://127.0.0.1:5000/dashboard">Dashboard</a> |
+            <a href="http://127.0.0.1:5000/login">Logout</a>
+        </nav>
+    </header>
+    <div class="container">
+
+        <form id="blood" name="blood" method="POST" action="{{ url_for('manage_users') }}">
+            <input type="hidden" id="user_id" name="user_id" value="{{ session.get('user_id', '') }}">
+
+            <label for="Role_User">Select Role to View: </label>
+            <select id="Role_User" name="Role_User">
+                <option value="" selected>Select role</option>
+                <option value="Blood Bank Manager">Blood Bank Manager</option>
+                <option value="Compatibility Specialist">Compatibility Specialist</option>
+                <option value="Data Entry Operator">Data Entry Operator</option>
+                <option value="Donor">Donor</option>
+                <option value="Hospital Representative">Hospital Representative</option>
+                <option value="Patient">Patient</option>
+            </select>
+            <button type="submit">Load Users</button>
+        </form>
+    </div>
+
+    <div class="container card">
+        <h2>Users - Double Click to Update</h2>
+        {% if results %}
+        <button onclick="commit()" class="btn">Commit</button><button onclick="add_user()" class="btn">Add New User</button>
+        <table id="userTable">
+            <tr>
+                <th>USER ID</th>
+                <th>ROLE</th>
+                <th>NAME</th>
+                <th>PHONE</th>
+                <th>EMAIL</th>
+                <th>PASSWORD</th>
+                <th>Delete User</th>
+            </tr>
+            {% for row in results %}
+            <tr data-user-id="{{ row[0] }}">
+                <td ondblclick="makeEditable(this)" data-field="user_id" class="user_id">{{ row[0] }}</td>
+                <td ondblclick="makeEditable(this)" data-field="role" class="role">{{ row[1] }}</td>
+                <td ondblclick="makeEditable(this)" data-field="name">{{ row[2] }}</td>
+                <td ondblclick="makeEditable(this)" data-field="phone">{{ row[3] }}</td>
+                <td ondblclick="makeEditable(this)" data-field="email">{{ row[4] }}</td>
+                <td ondblclick="makeEditable(this)" data-field="password" class="password">{{ row[5] }}</td>
+                <td>
+                    <button onclick="deleteuser(this, '{{ row[0]}}')">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No users found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

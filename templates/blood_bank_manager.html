@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f8d7da; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: #b71c1c; color: white; padding: 15px; text-align: center; font-size: 1.3rem; position: fixed; width: 100%; top: 0; left: 0; }
+        .back-button { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 16px; cursor: pointer; }
+        .back-button:hover { text-decoration: underline; }
+        .page-title { margin-top: 80px; text-align: center; font-size: 1.8rem; font-weight: bold; color: #b71c1c; }
+        main { display: flex; justify-content: center; align-items: center; flex: 1; margin-top: 40px; padding: 20px; }
+        .container { width: 90%; max-width: 1000px; display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .card { background: white; padding: 20px; width: 275px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); text-align: center; }
+        .card h2 { font-size: 20px; margin-bottom: 10px; }
+        .card p { font-size: 14px; margin-bottom: 10px; }
+        .card a { text-decoration: none; color: white; display: block; padding: 10px; margin-top: 5px; background-color: #b71c1c; border-radius: 5px; font-size: 14px; }
+        .card a:hover { background-color: #8e0000; }
+        footer { background-color: #333; color: white; text-align: center; padding: 10px; width: 100%; }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="back-button" onclick="history.back()">← Back</button>
+        <h1>Blood Availability Based Shortest Path Transfusion Hub Identification</h1>
+    </header>
+    <div class="page-title">Welcome, {{ username }}</div>
+    <main>
+        <div class="container">
+            {% if role == "hospital_rep" %}
+            <div class="card">
+                <h2>Request Blood</h2>
+                <p>Submit a request for blood based on urgency and location.</p>
+                <a href="{{ url_for('request_blood') }}">Request Blood</a>
+            </div>
+            <div class="card">
+                <h2>Track Requests</h2>
+                <p>View and track your blood requests in real-time.</p>
+                <a href="{{ url_for('track_request') }}">Track Request</a>
+            </div>
+            {% endif %}
+            {% if role == "blood_bank_manager" %}
+            <div class="card">
+                <h2>Manage Inventory</h2>
+                <p>Update and monitor available blood stock.</p>
+                <a href="{{ url_for('manage_inventory') }}">Manage Inventory</a>
+            </div>
+            <div class="card">
+                <h2>Approve Blood Requests</h2>
+                <p>Review and process hospital blood requests.</p>
+                <a href="{{ url_for('approve_requests') }}">Approve Requests</a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 Blood Bank Management System. All rights reserved.</p>
+    </footer>
+</body>
+</html>

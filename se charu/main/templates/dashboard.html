@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f8d7da; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: #b71c1c; color: white; padding: 15px; text-align: center; font-size: 1rem; position: fixed; width: 100%; top: 0; left: 0; }
+        .back-button { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 16px; cursor: pointer; }
+        .back-button:hover { text-decoration: underline; }
+        .page-title { margin-top: 80px; text-align: center; font-size: 1.8rem; font-weight: bold; color: #b71c1c; }
+        main { display: flex; justify-content: center; align-items: center; flex: 1; margin-top: 40px; padding: 20px; }
+                    .container {
+                width: 90%;
+                max-width: 600px;  /* Ensures a single column layout */
+                display: flex;
+                flex-direction: column; /* Stack cards vertically */
+                gap: 20px;  /* Space between cards */
+                align-items: center; /* Centers cards */
+            }
+
+            .card {
+                background: white;
+                padding: 20px;
+                width: 100%; /* Full width of container */
+                max-width: 400px; /* Ensures card size consistency */
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                text-align: center;
+            }
+
+        .card h2 { font-size: 20px; margin-bottom: 10px; }
+        .card p { font-size: 14px; margin-bottom: 10px; }
+        .card a { text-decoration: none; color: white; display: block; padding: 10px; margin-top: 5px; background-color: #b71c1c; border-radius: 5px; font-size: 14px; }
+        .card a:hover { background-color: #8e0000; }
+        footer { background-color: #333; color: white; text-align: center; padding: 10px; width: 100%; }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="back-button" onclick="history.back()">← Back</button>
+        <h1>Blood Availability Based Shortest Path Transfusion Hub Identification</h1>
+    </header>
+    <div class="page-title">Welcome, {{ username }} Role: {{ role }} </div>
+    <main>
+        {% if role == "Hospital Representative" %}
+        <div class="card">
+            <h2>Request Blood</h2>
+            <p>Submit a request for blood based on urgency and location.</p>
+            <a href="http://127.0.0.1:5001/blood_availability?session_id={{ session.sid }}">Request Blood</a>
+        </div>
+        <div class="card">
+            <h2>Track Requests</h2>
+            <p>View and track your blood requests in real-time.</p>
+            <a href="http://127.0.0.1:5001/track_request">Track Request</a> <!-- Update Port -->
+        </div>
+        <div class="card">
+            <h2>Track Requests</h2>
+            <p>View and patient blood requests and request the same to nearby blood banls.</p>
+            <a href="http://127.0.0.1:5001/track_patient_requests">View Patient Requests</a> <!-- Update Port -->
+        </div>
+        {% endif %}
+
+        {% if role == "Blood Bank Manager" %}
+        <div class="card">
+            <h2>Manage Inventory</h2>
+            <p>Update and monitor available blood stock and validate previously entered donations.</p>
+            <a href="http://127.0.0.1:5002/manage_inventory">Manage Inventory</a>
+        <div class="card">
+            <h2>Approve Blood Requests</h2>
+            <p>Review and process hospital blood requests.</p>
+            <a href="http://127.0.0.1:5002/approve_requests?session_id={{  session.sid }}">Approve Requests</a> <!-- Update Port -->
+        </div>
+        {% endif %}
+
+        {% if role == "Data Entry Operator" %}
+        <div class="card">
+            <h2>Enter Donation Details</h2>
+            <p>Fill out donor details and save them to the buffer.</p>
+            <a href="http://127.0.0.1:5003/enter_donation">Enter Details</a> <!-- Update Port -->
+        </div>
+        <div class="card">
+            <h2>Validate Entries</h2>
+            <p>Double check requests that are either pending to be approved or rejected by the blood bank manager.</p>
+            <a href="http://127.0.0.1:5003/view_buffer">View Buffer</a> <!-- Update Port -->
+        </div>
+        {% endif %}
+
+        {% if role == "Admin" %}
+        <div class="card">
+            <h2>Manage all users</h2>
+            <p>Manage all user accounts.</p>
+            <a href="http://127.0.0.1:5004/manage_users">Manage All Users</a> <!-- Update Port -->
+        </div>
+        <div class="card">
+            <h2>View All Stock</h2>
+            <p>Access blood stock from all blood banks.</p>
+            <a href="http://127.0.0.1:5004/view_donations">View All Stock</a> <!-- Update Port -->
+        </div>
+        {% endif %}
+        {% if role == "Patient" %}
+            {% if status == "registered" %}
+            <div class="card">
+                <h2>Find Nearest Hospital</h2>
+                <p>Find nearest hospital to receive blood.</p>
+                <a href="http://127.0.0.1:5005/find_nearest_hospital">Find Nearest Hospital</a>
+            </div>
+            {% else %}
+            <div class="card">
+                <h2>Register your details.</h2>
+                <p>Register your details to request for blood.</p>
+                <a href="http://127.0.0.1:5005/register_patient_details">Enter your details</a>
+            </div>
+            {% endif %}
+        {% endif %} 
+        {% if role == "Donor" %}
+            {% if status == "rnd" %}
+            <div class="card">
+                <div class="card">
+                    <h2>Schedule Donations</h2>
+                    <p>Find blood banks near you that are in need of blood.</p>
+                    <a href="http://127.0.0.1:5006/find_bb_to_donate">Find a date to schedule</a>
+                </div>
+                <div class="card">
+                    <h2>Check eligibility (for regular donors)</h2>
+                    <p>Check if you are eligibile to donate again.</p>
+                    <a href="http://127.0.0.1:5006/check_if_eligible">Check eligibility</a>
+                </div>
+                <div class="card">
+                    <h2>Track past donations (for already donated donors)</h2>
+                    <p>View when and what you donated previously.</p>
+                    <a href="http://127.0.0.1:5006/track_donations">Track past donations</a>
+                </div>
+            </div>
+            
+            {% elif status == "registered" %}
+            <div class="card">
+                <h2>Schedule Donations</h2>
+                <p>Find blood banks near you that are in need of blood.</p>
+                <a href="http://127.0.0.1:5006/find_bb_to_donate">Find a date to schedule</a>
+            </div>
+            
+            {% else %}
+            <div class="card">
+                <h2>Register your blood details</h2>
+                <p>Register your details first to access other functionalities.</p>
+                <a href="http://127.0.0.1:5006/register_donor_deets">Register Details.</a>
+            </div>
+            {% endif %}
+        {% endif %} 
+        {% if role == "Compatibility Specialist" %}
+            <div class="card">
+                <h2>Enter Patient Screening details</h2>
+                <p>Did an antibody screening test on a patient? Fill out the details here!</p>
+                <a href="http://127.0.0.1:5007/antibody_screen">Enter Antibody Screening details</a>
+            </div>
+            <div class="card">
+                <h2>EXM Compatibility</h2>
+                <p>Review all patients and check if they are eligible for EXM or a serologic crossmatch.</p>
+                <a href="http://127.0.0.1:5007/check_exm">Check Prerequisites</a>
+            </div>
+            <div class="card">
+                <h2>Enter Serological Test results</h2>
+                <p>Update if the serologic crossmatch passed or failed.</p>
+                <a href="http://127.0.0.1:5007/serologic_testing">Check Compatibility</a>
+            </div>
+        {% endif %}
+    </main>
+</body>
+</html>

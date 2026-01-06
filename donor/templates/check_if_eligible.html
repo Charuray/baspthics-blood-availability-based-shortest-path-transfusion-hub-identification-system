@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Eligibility</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f8d7da; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+        header {
+            background: #a00;
+            color: white;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 20px;
+            width: 100%;
+            position:relative;
+        }
+        .back-button { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 16px; cursor: pointer; }
+        .back-button:hover { text-decoration: underline; }
+        .page-title { margin-top: 80px; text-align: center; font-size: 1.8rem; font-weight: bold; color: #b71c1c; }
+        main { 
+            display: flex; 
+            justify-content: center; 
+            flex: 1; 
+            margin-top: 120px;
+            padding: 10px; 
+        }
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            align-items: start;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            height: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card.eligible {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .card.ineligible {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .card h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .card p {
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: left;
+            width: 100%;
+        }
+
+        nav {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            background: white;
+            color: #a00;
+            border-radius: 5px;
+        }
+        .status-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .eligible .status-indicator {
+            background-color: #28a745;
+        }
+
+        .ineligible .status-indicator {
+            background-color: #dc3545;
+        }
+
+        .eligibility-details {
+            width: 100%;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .eligibility-details h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .eligibility-details ul {
+            list-style-type: none;
+            padding-left: 10px;
+        }
+
+        .eligibility-details li {
+            margin-bottom: 5px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .eligibility-details li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #b71c1c;
+        }
+
+        footer { background-color: #333; color: white; text-align: center; padding: 10px; width: 100%; }
+        
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .card {
+                flex: 0 0 calc(50% - 20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+            <h1>View previous Donations</h1>
+            <nav>
+                <a href="http://127.0.0.1:5000/dashboard">Dashboard</a> |
+                <a href="http://127.0.0.1:5000/login">Logout</a>
+            </nav>
+    </header>
+    
+    <div class="page-title">Donation Eligibility Status</div>
+    
+    <main>
+        <div class="container">
+            <!-- Whole Blood Card -->
+            <div class="card {% if eligibility['Whole Blood'] %}eligible{% else %}ineligible{% endif %}" id="whole-blood-card">
+                <div class="status-indicator">{% if eligibility['Whole Blood'] %}✓{% else %}✗{% endif %}</div>
+                <h2>Whole Blood</h2>
+                <p>You are {% if not eligibility['Whole Blood'] %}not {% endif %}eligible to donate whole blood{% if not eligibility['Whole Blood'] and reasons.get('Whole Blood') %}: {{ reasons.get('Whole Blood') }}{% endif %}.</p>
+                <div class="eligibility-details">
+                    <h3>Requirements:</h3>
+                    <ul>
+                        <li>Last donation > 56 days ago</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Platelets Card -->
+            <div class="card {% if eligibility['Platelets'] %}eligible{% else %}ineligible{% endif %}" id="platelets-card">
+                <div class="status-indicator">{% if eligibility['Platelets'] %}✓{% else %}✗{% endif %}</div>
+                <h2>Platelets</h2>
+                <p>You are {% if not eligibility['Platelets'] %}not {% endif %}eligible to donate platelets{% if not eligibility['Platelets'] and reasons.get('Platelets') %}: {{ reasons.get('Platelets') }}{% endif %}.</p>
+                <div class="eligibility-details">
+                    <h3>Requirements:</h3>
+                    <ul>
+                        <li>Last donation > 7 days ago</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Plasma Card -->
+            <div class="card {% if eligibility['Plasma'] %}eligible{% else %}ineligible{% endif %}" id="plasma-card">
+                <div class="status-indicator">{% if eligibility['Plasma'] %}✓{% else %}✗{% endif %}</div>
+                <h2>Plasma</h2>
+                <p>You are {% if not eligibility['Plasma'] %}not {% endif %}eligible to donate plasma{% if not eligibility['Plasma'] and reasons.get('Plasma') %}: {{ reasons.get('Plasma') }}{% endif %}.</p>
+                <div class="eligibility-details">
+                    <h3>Requirement:</h3>
+                    <ul>
+                        <li>Last donation > 28 days ago</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Double Red Cell Card -->
+            <div class="card {% if eligibility['Double Red Cell'] %}eligible{% else %}ineligible{% endif %}" id="double-rbc-card">
+                <div class="status-indicator">{% if eligibility['Double Red Cell'] %}✓{% else %}✗{% endif %}</div>
+                <h2>Double Red Cell</h2>
+                <p>You are {% if not eligibility['Double Red Cell'] %}not {% endif %}eligible to donate double red blood cells{% if not eligibility['Double Red Cell'] and reasons.get('Double Red Cell') %}: {{ reasons.get('Double Red Cell') }}{% endif %}.</p>
+                <div class="eligibility-details">
+                    <h3>Requirements:</h3>
+                    <ul>
+                        <li>Last donation > 112 days ago</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

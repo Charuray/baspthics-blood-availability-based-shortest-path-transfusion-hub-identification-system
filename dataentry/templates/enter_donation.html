@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enter Donation</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        form {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: auto;
+            box-shadow: 0 0 8px rgba(0,0,0,0.2);
+        }
+        h2 { text-align: center; }
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+        input{
+            width: 90%;
+            padding: 10px;
+            margin-top: 5px;
+        }
+        select {
+            width: 95%;
+            padding: 10px;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <form action="/submit_donation" method="POST">
+        <h2>Enter Donation Details</h2>
+        <label for="donor_id">Donor ID:</label>
+        <input type="text" id="donor_id" name="donor_id" required>
+
+        <label for="donation_type">Donation Type:</label>
+        <select id="donation_type" name="donation_type" required>
+            <option value="">Select</option>
+            <option value="Whole Blood">Whole Blood</option>
+            <option value="Platelets">Platelets</option>
+            <option value="Plasma">Plasma</option>
+            <option value="Double Red Cells">Double Red Cells</option>
+        </select>
+
+        <label for="bb_id">Blood Bank ID:</label>
+        <input type="number" id="bb_id" name="bb_id" required>
+
+        <label for="blood_group">Blood Group:</label>
+        <input type="text" id="blood_group" name="blood_group" required>
+
+        <label for="units">Units Donated:</label>
+        <input type="number" id="units" name="units" min="1" required>
+
+        <label for="donated_date">Donated Date:</label>
+        <input type="date" id="donated_date" name="donated_date">
+
+        <button type="submit">Submit</button>
+    </form>
+    {% if success == 'true' %}
+    <script>
+        alert("Donation successfully recorded!");
+    </script>
+    {% endif %}
+</body>
+</html>

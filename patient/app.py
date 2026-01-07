@@ -28,7 +28,7 @@ def get_db_connection():
     return pyodbc.connect('DSN=oracle;UID=system;PWD=0608', autocommit=True)
 
 def get_coordinates(address):
-    api_key = "AIzaSyBuUE3VDoS9iZl-o6MqZZ1e-th7CyeYiq8"
+    api_key = "*******"
     url = "https://maps.googleapis.com/maps/api/geocode/json"
     params = {
         "address": address,

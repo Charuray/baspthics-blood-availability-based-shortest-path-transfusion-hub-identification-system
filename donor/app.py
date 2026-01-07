@@ -15,8 +15,8 @@ import googlemaps
 app = Flask(__name__)
 app.secret_key='mysecretkey'
 
-API_KEY = "AIzaSyBuUE3VDoS9iZl-o6MqZZ1e-th7CyeYiq8"
-SESSION_API_URL = "http://127.0.0.1:5000/get_user_role"
+API_KEY = "********"
+SESSION_API_URL = "http://127.0.0.1"
 gmaps = googlemaps.Client(key=API_KEY)
 
 @app.route('/get_user_role', methods=['GET'])
@@ -33,7 +33,7 @@ def get_user_role():
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 def get_coordinates(address):
-    api_key = "AIzaSyBuUE3VDoS9iZl-o6MqZZ1e-th7CyeYiq8"
+    api_key = "*******"***"
     url = "https://maps.googleapis.com/maps/api/geocode/json"
     params = {
         "address": address,

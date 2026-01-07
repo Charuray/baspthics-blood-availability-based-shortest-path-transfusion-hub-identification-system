@@ -14,7 +14,7 @@ app.secret_key ='mysecretkey'
 # API for session-based role retrieval
 SESSION_API_URL = "http://127.0.0.1:5000/get_user_role"
 
-API_KEY = "AIzaSyBuUE3VDoS9iZl-o6MqZZ1e-th7CyeYiq8"
+API_KEY = "************""
 gmaps = googlemaps.Client(key=API_KEY)
 
 def get_db_connection():

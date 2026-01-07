@@ -11,7 +11,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'mysecretkey'
 SESSION_API_URL = "http://127.0.0.1:5000/get_user_role"
-API_KEY = "AIzaSyBuUE3VDoS9iZl-o6MqZZ1e-th7CyeYiq8"
+API_KEY = "******"
 gmaps = googlemaps.Client(key=API_KEY)
 
 blood_request_status = [
